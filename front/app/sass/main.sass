@@ -1,0 +1,110 @@
+@import "common"
+@font-face 
+    font-family: Magistral_Extra_Bold_italic
+    src: url(../fonts/Magistral_Extra_Bold_italic.otf)
+
+
+body 
+    background-color: #D9D9D6
+    font-family: Arial, sans-serif
+
+li
+    list-style-type: none
+
+nav
+    color: #ffffff
+    width: 320px
+    min-width: 320px
+    /* фиксируем и выставляем высоту панели на максимум */
+    height: 100%
+    position: fixed
+    top: 0
+    bottom: 0
+    margin: 0
+    /* сдвигаем (прячем) панель относительно левого края страницы */
+    left: -320px
+    /* внутренние отступы */
+    padding: 15px 0px
+    /* плавный переход смещения панели */
+    -webkit-transition: left 0.3s
+    -moz-transition: left 0.3s
+    transition: left 0.3s
+    /* определяем цвет фона панели */
+    background: #003DA5
+    /* поверх других элементов */
+    z-index: 2000
+    .nav__logo
+        p
+            font-family: Magistral_Extra_Bold_italic
+            border-bottom: 4px solid #D6001C
+            text-align: center
+    ul
+        width: 100%
+        padding: 0     
+        font-size: 24px
+        li
+            list-style-type: none
+            margin-top: 5px
+            padding: 5px
+            &:hover
+                background: #002b75
+  
+.nav-toggle
+    /* абсолютно позиционируем */
+    position: absolute
+    /* относительно левого края панели */
+    left: 320px
+    /* отступ от верхнего края панели */
+    top: 1em
+    /* внутренние отступы */
+    padding: 0.5em
+    background: inherit
+    /* цвет текста */
+    color: #000
+    /* вид курсора */
+    cursor: pointer
+    /* размер шрифта */
+    font-size: 1.2em
+    line-height: 1
+    /* всегда поверх других элементов страницы */
+    z-index: 2001
+    /* анимируем цвет текста при наведении */
+    -webkit-transition: color .25s ease-in-out
+    -moz-transition: color .25s ease-in-out
+    transition: color .25s ease-in-out
+
+.nav-toggle:after
+    content: '\2630'
+    text-decoration: none
+
+.nav-toggle:hover
+    color: #f4f4f4
+
+input#nav-toggle 
+    position: absolute
+    display: none
+        
+#nav-toggle:checked ~ .nav > .nav-toggle 
+    left: auto
+    right: 2px
+    top: 1em
+
+#nav-toggle:checked ~ .nav 
+    left: 0
+    overflow-y: auto
+
+#nav-toggle:checked ~ .nav > .nav-toggle:after
+    content: '\2715'
+
+ul
+    a,a:hover
+        text-decoration: none 
+        color: white
+       
+
+.background
+    background-color: white
+
+.frame
+    border: 2px solid #1d1b1b 
+

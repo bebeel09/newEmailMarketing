@@ -1,0 +1,1 @@
+var $ = require("chart.js");
