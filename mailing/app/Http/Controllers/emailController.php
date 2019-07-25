@@ -11,6 +11,7 @@ use DB;
 use Log;
 use Illuminate\Support\Facades\Mail;
 use App\Jobs\SendEmailProcess;
+use App\Mail\spamMailing;
 
 class emailController extends Controller
 {
@@ -38,8 +39,7 @@ class emailController extends Controller
         return $value;
     }
 
-    public function newEmailTable(Request $request)
-    {
+    public function newEmailTable(Request $request){
         $input = $request->all();
 
         if($request['nameTable']=="" or $request['file']==""){
@@ -105,8 +105,7 @@ class emailController extends Controller
         }
     }
 
-    public function getMailingPage()
-    {
+    public function getMailingPage(){
 
         $tables = DB::select('SHOW TABLES');
 
@@ -128,6 +127,10 @@ class emailController extends Controller
 
     public function sendMail(Request $request)
     {
+        // Заменить в продакшене
+        $sender='ajdarhalitov2622@gmail.com';
+        $titleMail="чё кого?"; 
+        $when=now()->addMinutes(1);
        
         $value = $request->all();
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}]");
@@ -135,15 +138,17 @@ class emailController extends Controller
                 
             foreach ($contacts as $contact) {
                 dump($contact);
+                dump($when);
               
+                Mail::to($contact)->later($when,new spamMailing($sender,basename($value['templateName']), ['contact'=>$contact],$titleMail));
+
 
                 //если сообщение отправлено сделать пометку об отпраке в бд
-                if(!Mail::send('template.' . basename($value['templateName']), ['contact'=>$contact], function($message) use ($contact) {
-                    $message->from('info@hitechsvarka.ru')->to($contact->email)->subject('Приглашаем Вас на Семинар дилеров компании TELWIN в России 2019');
-                    
-                })){
-                    DB::table($value['dbName'])->where('id',$contact->id)->update(['sended'=>1]);
-                }
+                // if(!Mail::send('template.' . basename($value['templateName']), ['contact'=>$contact], function($message) use ($contact) {
+                //     $message->from('info@hitechsvarka.ru')->to($contact->email)->subject('Приглашаем Вас на Семинар дилеров компании TELWIN в России 2019');     
+                // })){
+                //     DB::table($value['dbName'])->where('id',$contact->id)->update(['sended'=>1]);
+                // }
             }
     }
 }
