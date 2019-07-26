@@ -20,6 +20,19 @@
         <div class="title p-3 mb-3">
             <h1>Создать новую таблицу клиентов</h1>
         </div>
+        
+        <div>
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+        </div>
+
 
         <form class="form" enctype="multipart/form-data" method="POST" action="{{ route('createTableContacts') }}">
         {{ csrf_field() }}

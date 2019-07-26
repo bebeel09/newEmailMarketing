@@ -16,7 +16,8 @@ use App\Mail\spamMailing;
 class emailController extends Controller
 {
 
-    private  function translit($value){
+    private  function translit($value)
+    {
         $converter = array(
             'а' => 'a',    'б' => 'b',    'в' => 'v',    'г' => 'g',    'д' => 'd',
             'е' => 'e',    'ё' => 'e',    'ж' => 'zh',   'з' => 'z',    'и' => 'i',
@@ -24,8 +25,8 @@ class emailController extends Controller
             'о' => 'o',    'п' => 'p',    'р' => 'r',    'с' => 's',    'т' => 't',
             'у' => 'u',    'ф' => 'f',    'х' => 'h',    'ц' => 'c',    'ч' => 'ch',
             'ш' => 'sh',   'щ' => 'sch',  'ь' => '',     'ы' => 'y',    'ъ' => '',
-            'э' => 'e',    'ю' => 'yu',   'я' => 'ya',   
-    
+            'э' => 'e',    'ю' => 'yu',   'я' => 'ya',
+
             'А' => 'A',    'Б' => 'B',    'В' => 'V',    'Г' => 'G',    'Д' => 'D',
             'Е' => 'E',    'Ё' => 'E',    'Ж' => 'Zh',   'З' => 'Z',    'И' => 'I',
             'Й' => 'Y',    'К' => 'K',    'Л' => 'L',    'М' => 'M',    'Н' => 'N',
@@ -34,20 +35,25 @@ class emailController extends Controller
             'Ш' => 'Sh',   'Щ' => 'Sch',  'Ь' => '',     'Ы' => 'Y',    'Ъ' => '',
             'Э' => 'E',    'Ю' => 'Yu',   'Я' => 'Ya',   ' ' => '_',
         );
-    
+
         $value = strtr($value, $converter);
         return $value;
     }
 
     public function newEmailTable(Request $request){
+        $request->validate([
+            'nameTable'=>'alpha_dash|required',
+            'file'=>'file|mimes:xls,xlsx,xlm'
+        ]);
+
         $input = $request->all();
 
-        if($request['nameTable']=="" or $request['file']==""){
-            Log::channel('logInfo')->info('При попытке создать базу клиентов произошла ошибка [Не получено имя таблицы или файл с контактами.]');
+        if ($request['nameTable'] == "" or $request['file'] == "") {
+            Log::channel('logInfo')->info('При попытке создать базу клиентов произошла ошибка: [Не получено имя таблицы или файл с контактами.]');
             die("Ошибка! Не получено имя таблицы или файл с контактами!");
         }
 
-        $nameTable =$this->translit($request['nameTable']);
+        $nameTable = $this->translit($request['nameTable']);
 
         if (!Schema::hasTable($nameTable)) {
 
@@ -60,11 +66,10 @@ class emailController extends Controller
                 $table->timestamps();
             });
             Log::channel('logInfo')->info("Создана таблица клиентов: [{$nameTable}]");
-            
-        } else{
+        } else {
             Log::channel('logInfo')->info("При попытке создать базу клиентов произошла ошибка. Таблица с именем [{$nameTable}] уже существует");
             die("Ошибка! Операция остановлена. \nТаблица с именем [{$nameTable}] уже существует! Используйте другое название.");
-        } 
+        }
 
 
 
@@ -72,18 +77,18 @@ class emailController extends Controller
         $xls->setActiveSheetIndex(0);
         $sheet = $xls->getActiveSheet();
 
-        $nameColumnExcelArray=['рабочий email','наименование', 'компания'];
-        $indexColumnExcelArray=[];
+        $nameColumnExcelArray = ['рабочий email', 'наименование', 'компания'];
+        $indexColumnExcelArray = [];
 
 
         //вычисляем индексы столбцов с наименованиями перечисленными в $nameColumnExcelArray
-        for($i=0;$i<PHPExcel_Cell::columnIndexFromString($sheet->getHighestColumn()); $i++){
-            $excelCellValue=mb_strtolower($sheet->getCellByColumnAndRow($i,1)->getValue());
+        for ($i = 0; $i < PHPExcel_Cell::columnIndexFromString($sheet->getHighestColumn()); $i++) {
+            $excelCellValue = mb_strtolower($sheet->getCellByColumnAndRow($i, 1)->getValue());
             if (in_array($excelCellValue, $nameColumnExcelArray)) {
-                $indexColumnExcelArray= array_merge($indexColumnExcelArray,[$excelCellValue=>(int)$i]);
+                $indexColumnExcelArray = array_merge($indexColumnExcelArray, [$excelCellValue => (int) $i]);
             }
         }
-        
+
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
             $mail_line = $sheet->getCellByColumnAndRow($indexColumnExcelArray['рабочий email'], $i)->getValue();
@@ -106,8 +111,7 @@ class emailController extends Controller
     }
 
     public function getMailingPage(){
-
-        $tables = DB::select('SHOW TABLES');
+        $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = 'mailing') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
 
         $templateNames = array_diff(scandir(resource_path('views/template'), 1), array('..', '.'));
 
@@ -118,37 +122,38 @@ class emailController extends Controller
         return view('new_mailing', ['tablesName' => $tables, 'fileArray' => $templateNames]);
     }
 
-    public function getTemplate($template_name = null)
-    {
+    public function getTemplate($template_name = null){
         if (view()->exists("template." . $template_name)) {
             return view("template." . $template_name);
         } else die("файл шаблона не найден!");
     }
 
-    public function sendMail(Request $request)
-    {
-        // Заменить в продакшене
-        $sender='ajdarhalitov2622@gmail.com';
-        $titleMail="чё кого?"; 
-        $when=now()->addMinutes(1);
-       
+    public function sendMail(Request $request) {
+        $request->validate([
+            'Sender'=>'email',
+            'Theme'=>'required|string'
+        ]);
+
         $value = $request->all();
-        Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}]");
-        $contacts = DB::table($value['dbName'])->where('sended',0)->limit(25)->get();
-                
-            foreach ($contacts as $contact) {
-                dump($contact);
-                dump($when);
-              
-                Mail::to($contact)->later($when,new spamMailing($sender,basename($value['templateName']), ['contact'=>$contact],$titleMail));
 
+        $sender = $value['Sender'];
+        $titleMail = $value['Theme'];
+        $when = now('asia/yekaterinburg')->addMinutes(20);
 
-                //если сообщение отправлено сделать пометку об отпраке в бд
-                // if(!Mail::send('template.' . basename($value['templateName']), ['contact'=>$contact], function($message) use ($contact) {
-                //     $message->from('info@hitechsvarka.ru')->to($contact->email)->subject('Приглашаем Вас на Семинар дилеров компании TELWIN в России 2019');     
-                // })){
-                //     DB::table($value['dbName'])->where('id',$contact->id)->update(['sended'=>1]);
-                // }
+        Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
+
+        $contacts = DB::table($value['dbName'])->where('sended', 0)->get();
+
+        $index = 1;
+        foreach ($contacts as $contact) {
+            if ($index % 20 == 0) {
+                $when = $when->addMinutes(20);
             }
+            //если сообщение отправлено сделать пометку об отпраке в бд
+            if (Mail::to($contact)->later($when, new spamMailing($sender, basename($value['templateName']), ['contact' => $contact], $titleMail))) {
+                DB::table($value['dbName'])->where('id', $contact->id)->update(['sended' => 1]);
+            }
+            $index++;
+        }
     }
 }

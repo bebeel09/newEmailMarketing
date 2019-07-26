@@ -19,9 +19,20 @@
         <div class="title p-3 mb-3">
             <h1>Новая рассылка</h1>
         </div>
+        <div>
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+        </div>
 
         <form class="form" method="POST" action="{{ route('sendMail')}}">
-        {{ csrf_field() }}
+            {{ csrf_field() }}
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-3 col-form-label">Выбирите таблицу клитенов</label>
                 <div class="col-sm-9">
@@ -39,7 +50,7 @@
                 <label for="inputEmail3" class="col-sm-3 col-form-label">Выбирите шаблон письма для отправки</label>
                 <div class="col-sm-9">
                     <select name="templateName" id="selectID" change="selectMail" id="inputState" class="form-control">
-                    <?php
+                        <?php
                             foreach($fileArray as $fileMeta ){
                                 $path=route('seeTemplate',$fileMeta);
                                  echo "<option value=".$path.">".$fileMeta."</option>";
@@ -49,8 +60,24 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-3 col-form-label">Отправитель</label>
+                <div class="col-sm-9">
+                    <input type="text" name="Sender" class="form-control" placeholder="aidar@shtorm-its.ru">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-3 col-form-label">Тема письма</label>
+                <div class="col-sm-9">
+                    <input type="text" name="Theme" class="form-control"
+                        placeholder="Получи самые выгодные предложения первым!!">
+                </div>
+            </div>
+
             <div class="frame">
-                <iframe src="{{ route('seeTemplate',$fileArray[0]) }}" id="frame" frameborder="0" class="col-12" height="1000px"></iframe>
+                <iframe src="{{ route('seeTemplate',$fileArray[0]) }}" id="frame" frameborder="0" class="col-12"
+                    height="1000px"></iframe>
             </div>
 
             <div class="form-group row mt-2 ">
