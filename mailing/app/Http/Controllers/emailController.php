@@ -10,14 +10,12 @@ use App\contactTables;
 use DB;
 use Log;
 use Illuminate\Support\Facades\Mail;
-use App\Jobs\SendEmailProcess;
 use App\Mail\spamMailing;
 
 class emailController extends Controller
 {
 
-    private  function translit($value)
-    {
+    private  function translit($value){
         $converter = array(
             'а' => 'a',    'б' => 'b',    'в' => 'v',    'г' => 'g',    'д' => 'd',
             'е' => 'e',    'ё' => 'e',    'ж' => 'zh',   'з' => 'z',    'и' => 'i',
@@ -67,7 +65,7 @@ class emailController extends Controller
             });
             Log::channel('logInfo')->info("Создана таблица клиентов: [{$nameTable}]");
         } else {
-            Log::channel('logInfo')->info("При попытке создать базу клиентов произошла ошибка. Таблица с именем [{$nameTable}] уже существует");
+            Log::channel('logInfo')->info("При попытке создать таблицу клиентов произошла ошибка. Таблица с именем [{$nameTable}] уже существует");
             die("Ошибка! Операция остановлена. \nТаблица с именем [{$nameTable}] уже существует! Используйте другое название.");
         }
 
@@ -111,10 +109,14 @@ class emailController extends Controller
     }
 
     public function getMailingPage(){
+
+        //получаем список названий таблиц с клиентами без служебных таблиц (jobs, migrtions) 
         $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = 'mailing') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
 
+        //получаем массив навазний файлов шаблонов и убиараем в нём лишние элементы
         $templateNames = array_diff(scandir(resource_path('views/template'), 1), array('..', '.'));
 
+        //убираем из названий шаблонов их расширения
         for ($i = 0; $i < count($templateNames); $i++) {
             $templateNames[$i] = basename($templateNames[$i], '.blade.php');
         }
@@ -138,22 +140,44 @@ class emailController extends Controller
 
         $sender = $value['Sender'];
         $titleMail = $value['Theme'];
+
+        #Новая фича, выбор региона и время перерыва отправки, не забыть изменить делитель у index
         $when = now('asia/yekaterinburg')->addMinutes(20);
 
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
 
         $contacts = DB::table($value['dbName'])->where('sended', 0)->get();
+        if (count($contacts)==0){
+            Log::channel('logInfo')->info("Всем в таблице [{$value['dbName']}] уже были отправлены сообщения.");
+            die("По данным клиентов из таблицы [{$value['dbName']}] уже были отправлены сообщения.");
+        }
+        $lastWhen=$when->addMinutes((count($contacts)/20)*20);
+        echo("Первая пачка сообщений будет отправлена в {$when}, последняя в {$lastWhen}");
 
+
+        #____________Новая фича (Кому отправить тестовое пиьсмо?)_______________
+
+        // Mail::to("aidar@shtorm-its.ru")->later($when, new spamMailing($sender, basename($value['templateName']), $contact, $titleMail));
+
+        #_________________________________________END__________________________________________
+
+        
+        
         $index = 1;
         foreach ($contacts as $contact) {
             if ($index % 20 == 0) {
                 $when = $when->addMinutes(20);
             }
-            //если сообщение отправлено сделать пометку об отпраке в бд
-            if (Mail::to($contact)->later($when, new spamMailing($sender, basename($value['templateName']), ['contact' => $contact], $titleMail))) {
+
+            //это для тестов, раскоментировать в случае дебага по какой нибудь херне и закоментить отправку которая идёт в очередь
+          //  Mail::to($contact)->send( new spamMailing($sender, basename($value['templateName']),$contact , $titleMail));
+
+          //сообщение отправлено в очередь, сделать пометку об отпраке 
+            if (Mail::to($contact)->later($when, new spamMailing($sender, basename($value['templateName']), $contact, $titleMail))) {
                 DB::table($value['dbName'])->where('id', $contact->id)->update(['sended' => 1]);
             }
             $index++;
         }
+        Log::channel('logInfo')->info("Отправлено сообщений в очередь: {$index}");
     }
 }

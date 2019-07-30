@@ -12,10 +12,10 @@ class spamMailing extends Mailable
     use Queueable, SerializesModels;
 
 
-    public $sender;
-    public $view;
-    public $data;
-    public $titleMail;
+    public $sender; //отправитель
+    public $view; //название отпраляемого шаблона
+    public $data; //данные отправляемые в шаблон, передаётся тип object клиента
+    public $titleMail; //Тема пиьсма
 
 
 
