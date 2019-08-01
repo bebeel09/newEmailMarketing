@@ -37,9 +37,9 @@
         <form class="form" enctype="multipart/form-data" method="POST" action="{{ route('createTableContacts') }}">
         {{ csrf_field() }}
             <div class="form-group row">
-                <label for="inputEmail3" class="col-sm-3 col-form-label">Название новой таблицы</label>
+                <label for="nameTable" class="col-sm-3 col-form-label">Название новой таблицы</label>
                 <div class="col-sm-9">
-                    <input name="nameTable" type="text" class="form-control" placeholder="Название новой таблицы">
+                    <input name="nameTable" id="nameTable" type="text" class="form-control" placeholder="Название новой таблицы">
                 </div>
             </div>
 

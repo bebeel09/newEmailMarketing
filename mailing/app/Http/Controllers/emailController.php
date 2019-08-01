@@ -75,7 +75,10 @@ class emailController extends Controller
         $xls->setActiveSheetIndex(0);
         $sheet = $xls->getActiveSheet();
 
+        //Здесь указываем какие столбцы мы хотим взять из excel таблицы
         $nameColumnExcelArray = ['рабочий email', 'наименование', 'компания'];
+        
+        //Здесь будут храниться ассоциативный массив с навазнием столбца и его индексом
         $indexColumnExcelArray = [];
 
 

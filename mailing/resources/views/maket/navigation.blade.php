@@ -1,4 +1,6 @@
 @section('nav')
+
+
     <header>
         <!-- Start navigation -->
         <input type="checkbox" id="nav-toggle">
@@ -12,7 +14,7 @@
                     <a href="{{ route('seeFormContacts') }}" ><li>Создать новую таблицу контактов </li></a>
                     <a href="{{ route('new_mailing') }}"><li>Новая рассылка  </li></a>
                     <a href=""> <li>Настройки</li></a>
-                    <a href=""><li>Элемент меню</li></a>
+                    <a href="{{ route('FAQ')}}"><li>FAQ</li></a>
             </ul>
         </nav>
         <!-- End navigation -->

@@ -22,18 +22,10 @@
             </h4>
 
             <ul>
-                <a href="create_table.html">
-                    <li>Создать новую таблицу клиентов </li>
-                </a>
-                <a href="new_mailing.html">
-                    <li>Новая рассылка </li>
-                </a>
-                <a href="">
-                    <li>Настройки</li>
-                </a>
-                <a href="">
-                    <li>Элемент меню</li>
-                </a>
+                <a href="create_table.html"><li>Создать новую таблицу клиентов </li></a>
+                <a href="new_mailing.html"><li>Новая рассылка  </li></a>
+                <a href=""> <li>Настройки</li></a>
+                <a href="FAQ.html"><li>FAQ</li></a>
             </ul>
         </nav>
         <!-- End navigation -->
@@ -45,31 +37,44 @@
             <h1>Новая рассылка</h1>
         </div>
 
-        <form class="form" action="">
+        <form class="form" method="POST" action="">
+
             <div class="form-group row">
                 <label for="inputEmail3" class="col-sm-3 col-form-label">Выбирите таблицу клитенов</label>
                 <div class="col-sm-9">
-                        <select change="selectMail" id="inputState" class="form-control">
-                                <option selected>Hitech клиенты</option>
-                                <option>Shtorm клиенты</option>
-                                <option>ХЗ клиенты</option>
-                              </select>
+                    <select name="dbName" change="selectMail" id="inputState" class="form-control">
+                       
+                    </select>
                 </div>
             </div>
 
             <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-3 col-form-label">Выбирите шаблон письма для отправки</label>
-                    <div class="col-sm-9">
-                            <select id="selectID" change="selectMail" id="inputState" class="form-control">
-                                    <option selected>index.html</option>
-                                    <option>create_table.html</option>
-                                    <option>new_mailing.html</option>
-                                  </select>
-                    </div>
+                <label for="inputEmail3" class="col-sm-3 col-form-label">Выбирите шаблон письма для отправки</label>
+                <div class="col-sm-9">
+                    <select name="templateName" id="selectID" change="selectMail" id="inputState" class="form-control">
+                      
+                    </select>
                 </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-3 col-form-label">Отправитель</label>
+                <div class="col-sm-9">
+                    <input type="text" name="Sender" class="form-control" placeholder="aidar@shtorm-its.ru">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-3 col-form-label">Тема письма</label>
+                <div class="col-sm-9">
+                    <input type="text" name="Theme" class="form-control"
+                        placeholder="Получи самые выгодные предложения первым!!">
+                </div>
+            </div>
 
             <div class="frame">
-                <iframe src="create_table.html" id="frame" frameborder="0" class="col-12" height="1000px" ></iframe>
+                <iframe src="" id="frame" frameborder="0" class="col-12"
+                    height="1000px"></iframe>
             </div>
 
             <div class="form-group row mt-2 ">
@@ -83,17 +88,17 @@
 
 </body>
 <script>
-    var selectInput=document.getElementById('selectID');
+var selectInput = document.getElementById('selectID');
 
 
-    function selectMail(){
-        var iframe = document.getElementById('frame');
-        var selected_mail=selectInput.options[selectInput.selectedIndex].text;
-        iframe.setAttribute('src', selected_mail);
-    }
+function selectMail() {
+    var iframe = document.getElementById('frame');
+    var selected_mail = selectInput.options[selectInput.selectedIndex].value;
+    iframe.setAttribute('src', selected_mail);
+}
 
 
-    selectInput.addEventListener("change", selectMail);
+selectInput.addEventListener("change", selectMail);
 </script>
 
 </html>
