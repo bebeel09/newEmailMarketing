@@ -8909,3 +8909,9 @@ ul a, ul a:hover {
 
 .frame {
   border: 2px solid #1d1b1b; }
+
+.article {
+  padding: 50px 10px;
+  margin: 50px 10px;
+  -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); }

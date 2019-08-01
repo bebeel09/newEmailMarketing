@@ -25,6 +25,10 @@ Route::post('/create','emailController@newEmailTable' )->name('createTableContac
 
 Route::get('/new_mailing', 'emailController@getmailingPage')->name('new_mailing');
 
+Route::get('/FAQ', function(){
+    return view('FAQ');
+})->name('FAQ');
+
 Route::post('/send_mail', 'emailController@sendMail')->name('sendMail');
 
 Route::get('/storage1/template/{template_name}','emailController@getTemplate')->name('seeTemplate') ;
