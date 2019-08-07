@@ -135,7 +135,7 @@ class emailController extends Controller
 
     public function sendMail(Request $request) {
         $request->validate([
-            'Sender'=>'email',
+            'Sender'=>'required|email',
             'Theme'=>'required|string'
         ]);
 

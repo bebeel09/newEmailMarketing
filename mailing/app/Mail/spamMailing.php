@@ -25,12 +25,12 @@ class spamMailing extends Mailable
      *
      * @return void
      */
-    public function __construct($sender, $view, $dataView,$titleMail="Hello!")
+    public function __construct($sender, $view, $dataView, $titleMail = "Hello!")
     {
         $this->sender = $sender;
-        $this->view=$view;
-        $this->data=$dataView;
-        $this->titleMail=$titleMail;
+        $this->view = $view;
+        $this->data = $dataView;
+        $this->titleMail = $titleMail;
     }
 
     /**
@@ -41,11 +41,12 @@ class spamMailing extends Mailable
     public function build()
     {
         return $this->from($this->sender)
-                    ->subject($this->titleMail)
-                    ->view('template.'.$this->view)
-                    ->with(
-                      [
-                            'contact' => $this->data,
-                      ]);
+            ->subject($this->titleMail)
+            ->view('template.' . $this->view)
+            ->with(
+                [
+                    'contact' => $this->data,
+                ]
+            );
     }
 }

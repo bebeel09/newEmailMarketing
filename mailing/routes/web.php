@@ -13,9 +13,9 @@ use GuzzleHttp\Psr7\Request;
 */
 
 Route::get('/', function () {
-    Log::channel('logInfo')->info('Был заход на сайт!');
-    return view('home');
-});
+    // Log::channel('logInfo')->info('Был заход на email-маркетинг!');
+    return view('email_marketing');
+})->name('email_marketing');
 
 Route::get('/create', function (){
     return view('create_table_form');
