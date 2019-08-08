@@ -1,20 +1,10 @@
-@extends('maket.navigation')
-<!DOCTYPE html>
-<html lang="en">
+@extends('maket.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="css/main.css">
-    <script src="js/build.js"></script>
-</head>
+@section('title')
+FAQ
+@endsection
 
-<body>
-
-@section('nav')
-
+@section('content')
     <div class="container background h-100">
         <div class="title p-3 mb-3">
             <h1>FAQ</h1>
@@ -217,6 +207,4 @@
 
         </div>
     </div>
-</body>
-
-</html>
+@endsection
