@@ -11,6 +11,7 @@ use DB;
 use Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\spamMailing;
+use App\customClass\testClass;
 
 class emailController extends Controller
 {
@@ -128,8 +129,10 @@ class emailController extends Controller
     }
 
     public function getTemplate($template_name = null){
+        $contact=new testClass();
+
         if (view()->exists("template." . $template_name)) {
-            return view("template." . $template_name);
+            return view("template." . $template_name, compact('contact'));
         } else die("файл шаблона не найден!");
     }
 
@@ -145,7 +148,8 @@ class emailController extends Controller
         $titleMail = $value['Theme'];
 
         #Новая фича, выбор региона и время перерыва отправки, не забыть изменить делитель у index
-        $when = now('asia/yekaterinburg')->addMinutes(20);
+        // $when = now('asia/yekaterinburg')->addMinutes(20);
+        $when = now('asia/yekaterinburg');
 
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
 
@@ -173,7 +177,7 @@ class emailController extends Controller
             }
 
             //это для тестов, раскоментировать в случае дебага по какой нибудь херне и закоментить отправку которая идёт в очередь
-          //  Mail::to($contact)->send( new spamMailing($sender, basename($value['templateName']),$contact , $titleMail));
+        //    Mail::to($contact)->send( new spamMailing($sender, basename($value['templateName']),$contact , $titleMail));
 
           //сообщение отправлено в очередь, сделать пометку об отпраке 
             if (Mail::to($contact)->later($when, new spamMailing($sender, basename($value['templateName']), $contact, $titleMail))) {

@@ -12,4 +12,5 @@ class contactTables extends Model
     function __construct(string $nameTable) {
         $this->table=$nameTable;
     }
+
 }
