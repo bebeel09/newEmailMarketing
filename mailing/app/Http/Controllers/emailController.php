@@ -94,6 +94,7 @@ class emailController extends Controller
                 $indexColumnExcelArray = array_merge($indexColumnExcelArray, [$excelCellValue => (int) $i]);
             }
         }
+dd($sheet);
 
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
@@ -160,8 +161,8 @@ class emailController extends Controller
         $titleMail = $value['Theme'];
 
         #Новая фича, выбор региона и время перерыва отправки, не забыть изменить делитель у index
-        // $when = now('asia/yekaterinburg')->addMinutes(20);
-        $when = now('asia/yekaterinburg');
+        $when = now('asia/yekaterinburg')->addMinutes(20);
+        // $when = now('asia/yekaterinburg');
 
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
 
