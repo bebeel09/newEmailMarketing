@@ -94,7 +94,7 @@ class emailController extends Controller
                 $indexColumnExcelArray = array_merge($indexColumnExcelArray, [$excelCellValue => (int) $i]);
             }
         }
-        
+
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
 
@@ -126,7 +126,7 @@ class emailController extends Controller
 
         //получаем список названий таблиц с клиентами без служебных таблиц (jobs, migrtions) 
         // $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = 'mailing') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
-        $tables = DB::select("select `TABLE_NAME` as 'Tables_in_" . env('DB_DATABASE') . "' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = '" . env('DB_DATABASE') . "') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
+        $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = '" . env('DB_DATABASE') . "') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
         //получаем массив навазний файлов шаблонов и убиараем в нём лишние элементы
         $templateNames = array_diff(scandir(resource_path('views/template'), 1), array('..', '.'));
 
