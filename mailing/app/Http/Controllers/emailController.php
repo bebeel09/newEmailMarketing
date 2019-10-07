@@ -104,18 +104,19 @@ class emailController extends Controller
             $company = $sheet->getCellByColumnAndRow($indexColumnExcelArray['компания'], $i)->getValue();
             $name = $sheet->getCellByColumnAndRow($indexColumnExcelArray['наименование'], $i)->getValue();
 
-            //Может быть что один контакт имеет несколько email адресов. отправляем в БД несколько email адресов под одним контактом 
-            for ($j = 0; $j < count($number_mail); $j++) {
-                try {
+            if ($mail_line != "") {
+                //Может быть что один контакт имеет несколько email адресов. отправляем в БД несколько email адресов под одним контактом 
+                for ($j = 0; $j < count($number_mail); $j++) {
+                    try {
 
-                    $newTable = new contactTables($nameTable);
-                    $newTable->company = $company;
-                    $newTable->name = $name;
-                    $newTable->email = trim($number_mail[$j]);
-                    $newTable->save();
-
-                } catch (QueryException $e) {
-                    /* nothing */ 
+                        $newTable = new contactTables($nameTable);
+                        $newTable->company = $company;
+                        $newTable->name = $name;
+                        $newTable->email = trim($number_mail[$j]);
+                        $newTable->save();
+                    } catch (QueryException $e) {
+                        // nothing
+                    }
                 }
             }
         }
