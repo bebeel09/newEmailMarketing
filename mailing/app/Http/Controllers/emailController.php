@@ -94,7 +94,7 @@ class emailController extends Controller
                 $indexColumnExcelArray = array_merge($indexColumnExcelArray, [$excelCellValue => (int) $i]);
             }
         }
-dd($sheet->getHighestRow());
+        
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
 
