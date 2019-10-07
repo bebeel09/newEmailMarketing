@@ -59,7 +59,7 @@
                             </tr>
                             <tr>
                                 <td style="padding: 0 0 15px 0; font-weight: bold; font-size: 22px; color: #e11b21">
-                                    (343) 304-64-50
+                                (343) 287-86-89
                                 </td>
                             </tr>
                         </table>
@@ -184,7 +184,7 @@
                             </tr>
                             <tr>
                                 <td style="padding: 0 0 15px 0; font-weight: bold; font-size: 22px; color: #e11b21">
-                                    (343) 304-64-50
+                                (343) 287-86-89
                                 </td>
                             </tr>
                         </table>
