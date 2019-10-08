@@ -173,7 +173,7 @@ class emailController extends Controller
             Log::channel('logInfo')->info("Всем в таблице [{$value['dbName']}] уже были отправлены сообщения.");
             die("По данным клиентов из таблицы [{$value['dbName']}] уже были отправлены сообщения.");
         }
-        $lastWhen = $when->addMinutes((count($contacts) / 20) * 20);
+        $lastWhen = now()->addMinutes((count($contacts) / 20) * 20);
         echo ("Первая пачка сообщений будет отправлена в {$when}, последняя в {$lastWhen}");
 
 
