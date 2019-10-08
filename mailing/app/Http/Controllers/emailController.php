@@ -164,7 +164,7 @@ class emailController extends Controller
         $titleMail = $value['Theme'];
 
         #Новая фича, выбор региона и время перерыва отправки, не забыть изменить делитель у index
-        $when = now('asia/yekaterinburg')->addMinutes(20);
+        $when = now()->addMinutes(20);
 
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
 
