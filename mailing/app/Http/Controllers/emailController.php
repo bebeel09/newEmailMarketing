@@ -117,7 +117,6 @@ class emailController extends Controller
                 }
             }
         }
-    echo "Успешно";
     }
 
     public function getMailingPage(){
