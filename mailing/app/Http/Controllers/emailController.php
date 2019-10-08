@@ -13,12 +13,13 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\spamMailing;
 use App\customClass\testClass;
 use Illuminate\Database\QueryException;
+use App\job;
 
 
 class emailController extends Controller
 {
 
-    private  function translit($value)
+    private function translit($value)
     {
         $converter = array(
             'а' => 'a',    'б' => 'b',    'в' => 'v',    'г' => 'g',    'д' => 'd',
@@ -77,8 +78,8 @@ class emailController extends Controller
             }
         }
 
-        if($sheet->getHighestRow()==1){
-        die("В файле отсутствуют данные");    
+        if ($sheet->getHighestRow() == 1) {
+            die("В файле отсутствуют данные");
         }
 
         if (!Schema::hasTable($nameTable)) {
@@ -91,7 +92,7 @@ class emailController extends Controller
                 $table->boolean('sended')->default('0');
                 $table->timestamps();
             });
-            echo("Создана таблица клиентов: [{$nameTable}]<br>");
+            echo ("Создана таблица клиентов: [{$nameTable}]<br>");
             Log::channel('logInfo')->info("Создана таблица клиентов: [{$nameTable}]");
         } else {
             Log::channel('logInfo')->info("При попытке создать таблицу клиентов произошла ошибка. Таблица с именем [{$nameTable}] уже существует");
@@ -126,9 +127,8 @@ class emailController extends Controller
                 }
             }
         }
-        // if(count(contactTables($nameTable)::all()))
 
-        if(DB::table($nameTable)->count()==0){
+        if (DB::table($nameTable)->count() == 0) {
             Schema::dropIfExists($nameTable);
             die("В файле отсутствуют данные, база [{$nameTable}] была удалена.");
         }
@@ -151,6 +151,8 @@ class emailController extends Controller
         return view('new_mailing', ['tablesName' => $tables, 'fileArray' => $templateNames]);
     }
 
+
+
     public function getTemplate($template_name = null)
     {
         $contact = new testClass();
@@ -160,6 +162,8 @@ class emailController extends Controller
         } else die("файл шаблона не найден!");
     }
 
+
+
     public function sendMail(Request $request)
     {
         $request->validate([
@@ -168,20 +172,29 @@ class emailController extends Controller
         ]);
 
         $value = $request->all();
-
         $sender = $value['Sender'];
         $titleMail = $value['Theme'];
 
         #Новая фича, выбор региона и время перерыва отправки, не забыть изменить делитель у index
-        $when = now()->addMinutes(20);
+
+        $timeLastSended = job::latest()->first();
+        // dd($timeLastSended->available_at);
+        if ($timeLastSended != null) {
+            $when = now()->setTimestamp($timeLastSended->available_at);
+            $when->addMinutes(20);
+        }else{
+            $when = now()->addMinutes(20);
+        }
 
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
 
         $contacts = DB::table($value['dbName'])->where('sended', 0)->get();
+
         if (count($contacts) == 0) {
             Log::channel('logInfo')->info("Всем в таблице [{$value['dbName']}] уже были отправлены сообщения.");
             die("По данным клиентов из таблицы [{$value['dbName']}] уже были отправлены сообщения.");
         }
+
         $lastWhen = now()->addMinutes((count($contacts) / 20) * 20);
         echo ("Первая пачка сообщений будет отправлена в {$when}, последняя в {$lastWhen}");
 
@@ -192,8 +205,6 @@ class emailController extends Controller
 
         #_________________________________________END__________________________________________
 
-
-
         $index = 1;
         foreach ($contacts as $contact) {
             if ($index % 20 == 0) {
@@ -201,6 +212,7 @@ class emailController extends Controller
             }
 
             //это для тестов, раскоментировать в случае дебага по какой нибудь херне и закоментить отправку которая идёт в очередь
+            //Отправляет письма без помещения в очередь.
             //    Mail::to($contact)->send( new spamMailing($sender, basename($value['templateName']),$contact , $titleMail));
 
             //сообщение отправлено в очередь, сделать пометку об отпраке 
