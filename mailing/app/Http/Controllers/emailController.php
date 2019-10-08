@@ -94,22 +94,30 @@ class emailController extends Controller
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
             $mail_line = $sheet->getCellByColumnAndRow($indexColumnExcelArray['рабочий email'], $i)->getValue();
-            $number_mail = explode(", ", $mail_line);
+            $number_mail = explode(",", preg_replace('/\s/', '', $mail_line));
 
             $company = $sheet->getCellByColumnAndRow($indexColumnExcelArray['компания'], $i)->getValue();
             $name = $sheet->getCellByColumnAndRow($indexColumnExcelArray['наименование'], $i)->getValue();
 
-            //Может быть что один контакт имеет несколько email адресов. отправляем в БД несколько email адресов под одним контактом 
-            for ($j = 0; $j < count($number_mail); $j++) {
-                $newTable = new contactTables($nameTable);
+            if ($mail_line != "") {
+                //Может быть что один контакт имеет несколько email адресов. отправляем в БД несколько email адресов под одним контактом 
+                for ($j = 0; $j < count($number_mail); $j++) {
+                    try {
 
-                $newTable->company = $company;
-                $newTable->name = $name;
-                $newTable->email = trim($number_mail[$j]);
-
-                $newTable->save();
+                        $newTable = new contactTables($nameTable);
+                        $newTable->company = $company;
+                        $newTable->name = $name;
+                        $newTable->email = trim($number_mail[$j]);
+                        if (filter_var(trim($number_mail[$j]), FILTER_VALIDATE_EMAIL) !== false) {
+                            $newTable->save();
+                        }
+                    } catch (QueryException $e) {
+                        // nothing
+                    }
+                }
             }
         }
+    echo "Успешно";
     }
 
     public function getMailingPage(){
