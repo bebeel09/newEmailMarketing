@@ -12,14 +12,11 @@ use Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\spamMailing;
 use App\customClass\testClass;
-use Illuminate\Database\QueryException;
-
 
 class emailController extends Controller
 {
 
-    private  function translit($value)
-    {
+    private  function translit($value){
         $converter = array(
             'а' => 'a',    'б' => 'b',    'в' => 'v',    'г' => 'g',    'д' => 'd',
             'е' => 'e',    'ё' => 'e',    'ж' => 'zh',   'з' => 'z',    'и' => 'i',
@@ -42,11 +39,10 @@ class emailController extends Controller
         return $value;
     }
 
-    public function newEmailTable(Request $request)
-    {
+    public function newEmailTable(Request $request){
         $request->validate([
-            'nameTable' => 'alpha_dash|required',
-            'file' => 'file|mimes:xls,xlsx,xlm'
+            'nameTable'=>'alpha_dash|required',
+            'file'=>'file|mimes:xls,xlsx,xlm'
         ]);
 
         $input = $request->all();
@@ -82,7 +78,7 @@ class emailController extends Controller
 
         //Здесь указываем какие столбцы мы хотим взять из excel таблицы
         $nameColumnExcelArray = ['рабочий email', 'наименование', 'компания'];
-
+        
         //Здесь будут храниться ассоциативный массив с навазнием столбца и его индексом
         $indexColumnExcelArray = [];
 
@@ -97,7 +93,6 @@ class emailController extends Controller
 
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
-
             $mail_line = $sheet->getCellByColumnAndRow($indexColumnExcelArray['рабочий email'], $i)->getValue();
             $number_mail = explode(", ", $mail_line);
 
@@ -106,27 +101,22 @@ class emailController extends Controller
 
             //Может быть что один контакт имеет несколько email адресов. отправляем в БД несколько email адресов под одним контактом 
             for ($j = 0; $j < count($number_mail); $j++) {
-                try {
+                $newTable = new contactTables($nameTable);
 
-                    $newTable = new contactTables($nameTable);
-                    $newTable->company = $company;
-                    $newTable->name = $name;
-                    $newTable->email = trim($number_mail[$j]);
-                    $newTable->save();
+                $newTable->company = $company;
+                $newTable->name = $name;
+                $newTable->email = trim($number_mail[$j]);
 
-                } catch (QueryException $e) {
-                    /* nothing */ 
-                }
+                $newTable->save();
             }
         }
     }
 
-    public function getMailingPage()
-    {
+    public function getMailingPage(){
 
         //получаем список названий таблиц с клиентами без служебных таблиц (jobs, migrtions) 
-        // $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = 'mailing') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
-        $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = '" . env('DB_DATABASE') . "') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
+        $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = 'mailing') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
+
         //получаем массив навазний файлов шаблонов и убиараем в нём лишние элементы
         $templateNames = array_diff(scandir(resource_path('views/template'), 1), array('..', '.'));
 
@@ -138,20 +128,18 @@ class emailController extends Controller
         return view('new_mailing', ['tablesName' => $tables, 'fileArray' => $templateNames]);
     }
 
-    public function getTemplate($template_name = null)
-    {
-        $contact = new testClass();
+    public function getTemplate($template_name = null){
+        $contact=new testClass();
 
         if (view()->exists("template." . $template_name)) {
             return view("template." . $template_name, compact('contact'));
         } else die("файл шаблона не найден!");
     }
 
-    public function sendMail(Request $request)
-    {
+    public function sendMail(Request $request) {
         $request->validate([
-            'Sender' => 'required|email',
-            'Theme' => 'required|string'
+            'Sender'=>'required|email',
+            'Theme'=>'required|string'
         ]);
 
         $value = $request->all();
@@ -160,17 +148,18 @@ class emailController extends Controller
         $titleMail = $value['Theme'];
 
         #Новая фича, выбор региона и время перерыва отправки, не забыть изменить делитель у index
-        $when = now('asia/yekaterinburg')->addMinutes(20);
+        // $when = now('asia/yekaterinburg')->addMinutes(20);
+        $when = now('asia/yekaterinburg');
 
         Log::channel('logInfo')->info("Инициализирована рассылка сообщений. Таблица БД:[{$value['dbName']}], используемый шаблон: [{$value['templateName']}], Тема сообщений: [{$titleMail}], Отправитель: [{$sender}];");
 
         $contacts = DB::table($value['dbName'])->where('sended', 0)->get();
-        if (count($contacts) == 0) {
+        if (count($contacts)==0){
             Log::channel('logInfo')->info("Всем в таблице [{$value['dbName']}] уже были отправлены сообщения.");
             die("По данным клиентов из таблицы [{$value['dbName']}] уже были отправлены сообщения.");
         }
-        $lastWhen = $when->addMinutes((count($contacts) / 20) * 20);
-        echo ("Первая пачка сообщений будет отправлена в {$when}, последняя в {$lastWhen}");
+        $lastWhen=$when->addMinutes((count($contacts)/20)*20);
+        echo("Первая пачка сообщений будет отправлена в {$when}, последняя в {$lastWhen}");
 
 
         #____________Новая фича (Кому отправить тестовое пиьсмо?)_______________
@@ -179,8 +168,8 @@ class emailController extends Controller
 
         #_________________________________________END__________________________________________
 
-
-
+        
+        
         $index = 1;
         foreach ($contacts as $contact) {
             if ($index % 20 == 0) {
@@ -188,9 +177,9 @@ class emailController extends Controller
             }
 
             //это для тестов, раскоментировать в случае дебага по какой нибудь херне и закоментить отправку которая идёт в очередь
-            //    Mail::to($contact)->send( new spamMailing($sender, basename($value['templateName']),$contact , $titleMail));
+        //    Mail::to($contact)->send( new spamMailing($sender, basename($value['templateName']),$contact , $titleMail));
 
-            //сообщение отправлено в очередь, сделать пометку об отпраке 
+          //сообщение отправлено в очередь, сделать пометку об отпраке 
             if (Mail::to($contact)->later($when, new spamMailing($sender, basename($value['templateName']), $contact, $titleMail))) {
                 DB::table($value['dbName'])->where('id', $contact->id)->update(['sended' => 1]);
             }
