@@ -58,24 +58,6 @@ class emailController extends Controller
 
         $nameTable = $this->translit($request['nameTable']);
 
-        if (!Schema::hasTable($nameTable)) {
-
-            Schema::create($nameTable, function ($table) {
-                $table->bigIncrements('id');
-                $table->string('company')->nullable();
-                $table->string('name')->nullable();
-                $table->string('email')->unique();
-                $table->boolean('sended')->default('0');
-                $table->timestamps();
-            });
-            Log::channel('logInfo')->info("Создана таблица клиентов: [{$nameTable}]");
-        } else {
-            Log::channel('logInfo')->info("При попытке создать таблицу клиентов произошла ошибка. Таблица с именем [{$nameTable}] уже существует");
-            die("Ошибка! Операция остановлена. \nТаблица с именем [{$nameTable}] уже существует! Используйте другое название.");
-        }
-
-
-
         $xls = PHPExcel_IOFactory::load($input['file']->getRealPath());
         $xls->setActiveSheetIndex(0);
         $sheet = $xls->getActiveSheet();
@@ -94,6 +76,28 @@ class emailController extends Controller
                 $indexColumnExcelArray = array_merge($indexColumnExcelArray, [$excelCellValue => (int) $i]);
             }
         }
+
+        if($sheet->getHighestRow()==1){
+        die("В файле отсутствуют данные");    
+        }
+
+        if (!Schema::hasTable($nameTable)) {
+
+            Schema::create($nameTable, function ($table) {
+                $table->bigIncrements('id');
+                $table->string('company')->nullable();
+                $table->string('name')->nullable();
+                $table->string('email')->unique();
+                $table->boolean('sended')->default('0');
+                $table->timestamps();
+            });
+            echo("Создана таблица клиентов: [{$nameTable}]<br>");
+            Log::channel('logInfo')->info("Создана таблица клиентов: [{$nameTable}]");
+        } else {
+            Log::channel('logInfo')->info("При попытке создать таблицу клиентов произошла ошибка. Таблица с именем [{$nameTable}] уже существует");
+            die("Ошибка! Операция остановлена. \nТаблица с именем [{$nameTable}] уже существует! Используйте другое название.");
+        }
+
 
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
@@ -122,12 +126,17 @@ class emailController extends Controller
                 }
             }
         }
-    echo "Успешно";
+        // if(count(contactTables($nameTable)::all()))
+
+        if(DB::table($nameTable)->count()==0){
+            Schema::dropIfExists($nameTable);
+            die("В файле отсутствуют данные, база [{$nameTable}] была удалена.");
+        }
+        echo "Успешно";
     }
 
     public function getMailingPage()
     {
-
         //получаем список названий таблиц с клиентами без служебных таблиц (jobs, migrtions) 
         // $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = 'mailing') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
         $tables = DB::select("select `TABLE_NAME` as 'Tables_in_mailing' from (SELECT `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLES`.`TABLE_SCHEMA` = '" . env('DB_DATABASE') . "') as name WHERE (`TABLE_NAME` != 'jobs' and `TABLE_NAME` !='migrations')");
