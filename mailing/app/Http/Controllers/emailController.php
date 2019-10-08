@@ -94,7 +94,7 @@ class emailController extends Controller
         //Получаем данные по контактам
         for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
             $mail_line = $sheet->getCellByColumnAndRow($indexColumnExcelArray['рабочий email'], $i)->getValue();
-            $number_mail = explode(",", preg_replace('/\s/', '', $mail_line));
+            $number_mail = explode(", ", $mail_line);
 
             $company = $sheet->getCellByColumnAndRow($indexColumnExcelArray['компания'], $i)->getValue();
             $name = $sheet->getCellByColumnAndRow($indexColumnExcelArray['наименование'], $i)->getValue();
@@ -108,9 +108,7 @@ class emailController extends Controller
                         $newTable->company = $company;
                         $newTable->name = $name;
                         $newTable->email = trim($number_mail[$j]);
-                        if (filter_var(trim($number_mail[$j]), FILTER_VALIDATE_EMAIL) !== false) {
-                            $newTable->save();
-                        }
+                        $newTable->save();
                     } catch (QueryException $e) {
                         // nothing
                     }
