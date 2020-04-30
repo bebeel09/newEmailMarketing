@@ -33,7 +33,7 @@
     "gulp": "^3.9.1",
     "gulp-util": "^3.0.8",
     "imask": "^5.1.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jquery.maskedinput": "^1.4.1",
     "maskedinput": "^3.3.11",
     "package.json": "^2.0.1",
