@@ -27,7 +27,7 @@
     "babel-core": "^6.26.3",
     "babelify": "^8.0.0",
     "browserify": "^16.2.3",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.4",
     "executive": "^1.6.3",
     "global": "^4.4.0",
     "gulp": "^3.9.1",
